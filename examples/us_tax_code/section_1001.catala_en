@@ -4,31 +4,32 @@
 declaration enumeration GainOrLoss:
   -- Gain content money
   -- Loss content money
-
-declaration scope Section1014:
-  input output adjusted_basis content money # TODO: implement
-declaration scope Section1015:
-  input output adjusted_basis content money # TODO: implement
-declaration scope Section1041:
-  input output adjusted_basis content money # TODO: implement
-
-
+  
+# This could be improved by an `option A` type; the s164 property tax stuff and
+# the additional information about the adjusted basis and any term interest would 
+# be two optional structs.
 declaration scope Section1001:
-  section_1014 scope Section1014
-  section_1015 scope Section1015
-  section_1041 scope Section1041
+  input fmv_property_received content money
+  input money_received content money
+  input adjusted_basis content money
+  # Nothing is done with this arg, but making it separate should signal to
+  # users that it's NOT supposed to be considered part of the other S164 costs.
+  input reimbursed_s164_property_tax content money
+  input unreimbursed_s164_property_tax_paid_by_purchaser content money
+  # The sum of these `amount_adjusted_basis_attributable_to_*` values must be
+  # less than or equal to `adjusted_basis`. 
+  input amount_adjusted_basis_attributable_to_1014 content money
+  input amount_adjusted_basis_attributable_to_1015 content money
+  input amount_adjusted_basis_attributable_to_1041 content money
+  input entire_term_interest_transferred content boolean
 
-  input amount_realized content money
-  # We do not treat the cost basis as an input of the system, and assume that
-  # whoever invokes this section has figured out the adjusted basis already. The
-  # cost basis will be introduced in §1012 which goes from cost basis to
-  # adjusted basis.
-  input adjusted_basis_input content money
-  # TODO: use #114 when implemented to only have one variable
-  input sale_part_transaction_entire_interest_transferred content boolean
-  internal s1001_e_1_applies condition
-  internal adjusted_basis content money
-  context gain_or_loss_realized content GainOrLoss
+  # The adjusted basis minus the portions attributable to 1014, 1015, or 1041 if the
+  # property being transferred is a qualifying term interest, and the taxpayer is not 
+  # transferring their entire interest in the property.
+  internal effective_adjusted_basis content money
+  internal amount_realized content money
+  internal gain_or_loss_realized content GainOrLoss
+
   output gain_or_loss_recognized content GainOrLoss
 ```
 
@@ -42,19 +43,14 @@ provided in such section for determining loss over the amount realized.
 ```catala
 scope Section1001:
   definition gain_or_loss_realized under condition
-    amount_realized >=$ adjusted_basis
+    amount_realized >=$ effective_adjusted_basis
   consequence equals
-    Gain content (amount_realized -$ adjusted_basis)
+    Gain content (amount_realized -$ effective_adjusted_basis)
 
   definition gain_or_loss_realized under condition
-    adjusted_basis >$ amount_realized
+    effective_adjusted_basis >$ amount_realized
   consequence equals
-    Loss content (adjusted_basis -$ amount_realized)
-
-# NB: we do not break down the amount realized; our rationale: whoever is
-# looking at this section probably already ran their computation to figure out
-# the amount realized and doesn't want to deal with a tedious system where they
-# would have to input e.g. property tax, date of sale, etc.
+    Loss content (effective_adjusted_basis -$ amount_realized)
 ```
 
 ### (b) Amount realized
@@ -63,17 +59,24 @@ The amount realized from the sale or other disposition of property shall be the
 sum of any money received plus the fair market value of the property (other than
 money) received. In determining the amount realized—
 
-(1) there shall not be taken into account any amount received as reimbursement
-  for real property taxes which are treated under section 164(d) as imposed on the
-  purchaser, and
+```catala
+scope Section1001:
+  definition amount_realized equals 
+    fmv_property_received +$ money_received +$ unreimbursed_s164_property_tax_paid_by_purchaser
+```
 
-(2) there shall be taken into account amounts representing real property taxes
-  which are treated under section 164(d) as imposed on the taxpayer if such taxes
-  are to be paid by the purchaser.
+#### (1) 
+there shall not be taken into account any amount received as reimbursement
+for real property taxes which are treated under section 164(d) as imposed on the
+purchaser, and
+
+#### (2)
+there shall be taken into account amounts representing real property taxes
+which are treated under section 164(d) as imposed on the taxpayer if such taxes
+are to be paid by the purchaser.
 
 
 ### (c) Recognition of gain or loss
-
 Except as otherwise provided in this subtitle, the entire amount of the gain or
 loss, determined under this section, on the sale or exchange of property shall
 be recognized.
@@ -106,18 +109,13 @@ property) shall be disregarded.
 
 ```catala
 scope Section1001:
-  rule s1001_e_1_applies fulfilled
-
-  definition section_1014.adjusted_basis equals adjusted_basis_input
-  definition section_1015.adjusted_basis equals adjusted_basis_input
-  definition section_1041.adjusted_basis equals adjusted_basis_input
-
-  definition adjusted_basis equals
-    if s1001_e_1_applies then
-      adjusted_basis_input -$ section_1014.adjusted_basis -$
-      section_1015.adjusted_basis -$ section_1041.adjusted_basis
-    else
-      adjusted_basis_input
+  definition effective_adjusted_basis under condition 
+    not entire_term_interest_transferred 
+    consequence equals
+      adjusted_basis -$ 
+      (amount_adjusted_basis_attributable_to_1014 
+      +$ amount_adjusted_basis_attributable_to_1015 
+      +$ amount_adjusted_basis_attributable_to_1041)
 ```
 
 #### (2) Term interest in property defined
@@ -130,6 +128,11 @@ For purposes of paragraph (1), the term “term interest in property” means—
 
 (C) an income interest in a trust.
 
+```catala
+# CB: There should be a way to get the rendered output (pdf/tex) to show readers the 
+# code that accounts for this, even if it's up in the metadata.
+```
+
 #### (3) Exception
 
 Paragraph (1) shall not apply to a sale or other disposition which is a part of
@@ -138,8 +141,7 @@ any person or persons.
 
 ```catala
 scope Section1001:
-  exception rule s1001_e_1_applies
-  under condition
-    sale_part_transaction_entire_interest_transferred
-  consequence not fulfilled
+  definition effective_adjusted_basis under condition
+    entire_term_interest_transferred
+  consequence equals adjusted_basis
 ```

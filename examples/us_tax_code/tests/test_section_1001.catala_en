@@ -3,12 +3,156 @@
 > Include: ../section_1001.catala_en
 
 ```catala
+# Based on the facts of 26 CFR 1.1014-5(d) example 1
 declaration scope Test1:
   section_1001 scope Section1001
 
 scope Test1:
-  definition section_1001.amount_realized equals $300,000
-  definition section_1001.adjusted_basis_input equals $250,000
-  definition section_1001.sale_part_transaction_entire_interest_transferred equals true
-  assertion section_1001.gain_or_loss_recognized = Gain content $50,000
+  definition section_1001.fmv_property_received equals $0
+  definition section_1001.money_received equals $370,000
+  definition section_1001.unreimbursed_s164_property_tax_paid_by_purchaser equals $0
+  definition section_1001.reimbursed_s164_property_tax equals $0
+  definition section_1001.adjusted_basis equals $387,440
+  definition section_1001.entire_term_interest_transferred equals false
+  definition section_1001.amount_adjusted_basis_attributable_to_1014 equals $387,440
+  definition section_1001.amount_adjusted_basis_attributable_to_1015 equals $0
+  definition section_1001.amount_adjusted_basis_attributable_to_1041 equals $0
+  assertion section_1001.gain_or_loss_recognized = Gain content $370,000
+```
+
+```catala
+# Based on the facts of 26 CFR 1.1014-5(d) example 2
+declaration scope Test2:
+  section_1001 scope Section1001
+
+scope Test2:
+  definition section_1001.fmv_property_received equals $0
+  definition section_1001.money_received equals $410,969
+  definition section_1001.unreimbursed_s164_property_tax_paid_by_purchaser equals $0
+  definition section_1001.reimbursed_s164_property_tax equals $0
+  definition section_1001.adjusted_basis equals $316,130
+  definition section_1001.entire_term_interest_transferred equals false
+  definition section_1001.amount_adjusted_basis_attributable_to_1014 equals $316,130
+  definition section_1001.amount_adjusted_basis_attributable_to_1015 equals $0
+  definition section_1001.amount_adjusted_basis_attributable_to_1041 equals $0
+  assertion section_1001.gain_or_loss_recognized = Gain content $410,969
+```
+
+```catala
+# amount realized := 11
+# adjusted basis := 15
+# loss recognized := 4
+declaration scope Test3:
+  section_1001 scope Section1001
+
+scope Test3:
+  definition section_1001.fmv_property_received equals $10
+  definition section_1001.money_received equals $0
+  definition section_1001.reimbursed_s164_property_tax equals $10,000
+  definition section_1001.unreimbursed_s164_property_tax_paid_by_purchaser equals $1
+  definition section_1001.adjusted_basis equals $15
+  definition section_1001.entire_term_interest_transferred equals true
+  definition section_1001.amount_adjusted_basis_attributable_to_1014 equals $0
+  definition section_1001.amount_adjusted_basis_attributable_to_1015 equals $0
+  definition section_1001.amount_adjusted_basis_attributable_to_1041 equals $0
+  assertion section_1001.gain_or_loss_recognized = Loss content $4
+```
+
+```catala
+# amount realized := (100 + 50 + 10) = 160
+# adjusted basis := (130 - 10 - 20 - 30) = 70
+# gain recognized := 160 - 70 = 90
+declaration scope Test4:
+  section_1001 scope Section1001
+
+scope Test4:
+  definition section_1001.fmv_property_received equals $100
+  definition section_1001.money_received equals $50
+  definition section_1001.reimbursed_s164_property_tax equals $10,000
+  definition section_1001.unreimbursed_s164_property_tax_paid_by_purchaser equals $10
+  definition section_1001.adjusted_basis equals $130
+  definition section_1001.entire_term_interest_transferred equals false
+  definition section_1001.amount_adjusted_basis_attributable_to_1014 equals $10
+  definition section_1001.amount_adjusted_basis_attributable_to_1015 equals $20
+  definition section_1001.amount_adjusted_basis_attributable_to_1041 equals $30
+  assertion section_1001.gain_or_loss_recognized = Gain content $90
+```
+
+```catala
+# amount realized := (100 + 50 + 10) = 160
+# adjusted basis := (300 - 10 - 20 - 30) = 240
+# loss recognized := 160 - 240 = -80
+declaration scope Test5:
+  section_1001 scope Section1001
+
+scope Test5:
+  definition section_1001.fmv_property_received equals $100
+  definition section_1001.money_received equals $50
+  definition section_1001.reimbursed_s164_property_tax equals $10,000
+  definition section_1001.unreimbursed_s164_property_tax_paid_by_purchaser equals $10
+  definition section_1001.adjusted_basis equals $300
+  definition section_1001.entire_term_interest_transferred equals false
+  definition section_1001.amount_adjusted_basis_attributable_to_1014 equals $10
+  definition section_1001.amount_adjusted_basis_attributable_to_1015 equals $20
+  definition section_1001.amount_adjusted_basis_attributable_to_1041 equals $30
+  assertion section_1001.gain_or_loss_recognized = Loss content $80
+```
+
+```catala
+declaration scope Test6:
+  section_1001 scope Section1001
+
+scope Test6:
+  definition section_1001.fmv_property_received equals $0
+  definition section_1001.money_received equals $370,000
+  definition section_1001.unreimbursed_s164_property_tax_paid_by_purchaser equals $0
+  definition section_1001.reimbursed_s164_property_tax equals $0
+  definition section_1001.adjusted_basis equals $387,440
+  definition section_1001.entire_term_interest_transferred equals false
+  definition section_1001.amount_adjusted_basis_attributable_to_1014 equals $387,440
+  definition section_1001.amount_adjusted_basis_attributable_to_1015 equals $0
+  definition section_1001.amount_adjusted_basis_attributable_to_1041 equals $0
+  assertion section_1001.gain_or_loss_recognized = Gain content $370,000
+  #assertion section_1001.gain_or_loss_recognized = Loss content $17,440
+```
+
+```catala
+# amount realized := 310,000
+# adjusted basis := 250,000
+# gain recognized := 60,000
+declaration scope Test7:
+  section_1001 scope Section1001
+
+scope Test7:
+  definition section_1001.fmv_property_received equals $300,000
+  definition section_1001.money_received equals $0
+  definition section_1001.unreimbursed_s164_property_tax_paid_by_purchaser equals $10,000
+  definition section_1001.reimbursed_s164_property_tax equals $10,000
+  definition section_1001.adjusted_basis equals $250,000
+  definition section_1001.entire_term_interest_transferred equals true
+  definition section_1001.amount_adjusted_basis_attributable_to_1014 equals $0
+  definition section_1001.amount_adjusted_basis_attributable_to_1015 equals $0
+  definition section_1001.amount_adjusted_basis_attributable_to_1041 equals $0
+  assertion section_1001.gain_or_loss_recognized = Gain content $60,000
+```
+
+```catala
+# amount realized := 310,000
+# adjusted basis := 310,000
+# gain recognized := 0
+declaration scope Test8:
+  section_1001 scope Section1001
+
+scope Test8:
+  definition section_1001.fmv_property_received equals $300,000
+  definition section_1001.money_received equals $0
+  definition section_1001.reimbursed_s164_property_tax equals $10,000
+  definition section_1001.unreimbursed_s164_property_tax_paid_by_purchaser equals $10,000
+  definition section_1001.adjusted_basis equals $310,000
+  definition section_1001.entire_term_interest_transferred equals true
+  definition section_1001.amount_adjusted_basis_attributable_to_1014 equals $0
+  definition section_1001.amount_adjusted_basis_attributable_to_1015 equals $0
+  definition section_1001.amount_adjusted_basis_attributable_to_1041 equals $0
+
+  assertion section_1001.gain_or_loss_recognized = Gain content $0
 ```
