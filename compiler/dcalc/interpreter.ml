@@ -373,7 +373,7 @@ and evaluate_expr (ctx : Ast.decl_ctx) (e : A.expr Pos.marked) : A.expr Pos.mark
       | 1 -> List.find (fun sub -> not (is_empty_error sub)) exceptions
       | _ ->
           Errors.raise_multispanned_error
-            "There is a conflict between multiple validd consequences for assigning the same \
+            "There is a conflict between multiple valid consequences for assigning the same \
              variable."
             (List.map
                (fun except ->
