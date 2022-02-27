@@ -1,0 +1,68 @@
+## 26 U.S. Code § 1011 - Adjusted basis for determining gain or loss 
+
+```catala-metadata
+declaration enumeration BasisSource:
+  -- S1012
+  -- SubchapterC
+  -- SubchapterK
+  -- SubchapterP
+  -- Other 
+  
+declaration scope Section1011:
+  input basis content money
+  # from 1012 or "other applicable sections" (plural)
+  input basis_source content collection BasisSource
+  input net_adjustments_under_1016 content money
+  
+  # This is kind of the same thing as 1001; it would be nice to have
+  # ```
+  # declaration structure Section170Sale
+  #   data amount_realized content money
+  #   data fair_market_value content money
+  #
+  # s170_sale_deduction content option Section170Sale
+  # ```
+  # and do the conditions for (a) and (b) by pattern matching on whether
+  # s170_sale_deduction is some/none
+  input s170_deduction content boolean
+  input s170_sale_amount_realized content money
+  input s170_fair_market_value content money
+
+  # Is there a way to express "(a) demands that the adjusted basis is always a + b, 
+  # while later sections may add c | d | e"?
+  internal subsection_a_adjusted_basis content money
+
+  output adjusted_basis content money
+```
+
+### (a) General Rule
+
+The adjusted basis for determining the gain or loss from the sale or other disposition 
+of property, whenever acquired, shall be the basis (determined under section 1012 or 
+other applicable sections of this subchapter and subchapters C (relating to corporate 
+distributions and adjustments), K (relating to partners and partnerships), and P 
+(relating to capital gains and losses)), adjusted as provided in section 1016.
+
+```catala
+scope Section1011:
+  definition subsection_a_adjusted_basis equals basis +$ net_adjustments_under_1016
+  definition adjusted_basis 
+    under condition not s170_deduction
+    consequence 
+    equals subsection_a_adjusted_basis
+```
+
+### (b) Bargain sale to a charitable organization
+
+If a deduction is allowable under section 170 (relating to charitable contributions) 
+by reason of a sale, then the adjusted basis for determining the gain from such sale 
+shall be that portion of the adjusted basis which bears the same ratio to the adjusted 
+basis as the amount realized bears to the fair market value of the property.
+
+```catala
+scope Section1011:
+  definition adjusted_basis
+    under condition s170_deduction
+    consequence
+    equals subsection_a_adjusted_basis *$ (s170_sale_amount_realized /$ s170_fair_market_value)
+```

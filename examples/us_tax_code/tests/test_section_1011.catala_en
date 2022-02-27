@@ -1,0 +1,74 @@
+## Test
+
+> Include: ../section_1011.catala_en
+
+```catala
+declaration scope Test1:
+  section_1011 scope Section1011
+
+scope Test1:
+  definition section_1011.basis equals $1,000
+  definition section_1011.basis_source equals [S1012 ; SubchapterC ; Other]
+  # `-$200` doesn't work, but negative money appears to be supported via workaround?
+  definition section_1011.net_adjustments_under_1016 equals $0 -$ $200
+  definition section_1011.s170_deduction equals false
+  definition section_1011.s170_sale_amount_realized equals $0
+  definition section_1011.s170_fair_market_value equals $0
+  assertion section_1011.adjusted_basis = $800
+```
+
+```catala
+declaration scope Test2:
+  section_1011 scope Section1011
+
+scope Test2:
+  definition section_1011.basis equals $1,000
+  definition section_1011.basis_source equals [S1012]
+  definition section_1011.net_adjustments_under_1016 equals $500
+  definition section_1011.s170_deduction equals true
+  definition section_1011.s170_sale_amount_realized equals $200
+  definition section_1011.s170_fair_market_value equals $100
+  assertion section_1011.adjusted_basis = $3,000
+```
+
+```catala
+declaration scope Test3:
+  section_1011 scope Section1011
+
+scope Test3:
+  definition section_1011.basis equals $1,000
+  definition section_1011.basis_source equals [S1012]
+  definition section_1011.net_adjustments_under_1016 equals $500
+  definition section_1011.s170_deduction equals false
+  definition section_1011.s170_sale_amount_realized equals $200
+  definition section_1011.s170_fair_market_value equals $100
+  assertion section_1011.adjusted_basis = $1,500
+```
+
+```catala
+declaration scope Test4:
+  section_1011 scope Section1011
+
+scope Test4:
+  definition section_1011.basis equals $1,000
+  definition section_1011.basis_source equals [S1012]
+  definition section_1011.net_adjustments_under_1016 equals $500
+  definition section_1011.s170_deduction equals true
+  definition section_1011.s170_sale_amount_realized equals $100
+  definition section_1011.s170_fair_market_value equals $200
+  assertion section_1011.adjusted_basis = $750
+```
+
+```catala
+declaration scope Test5:
+  section_1011 scope Section1011
+
+scope Test5:
+  definition section_1011.basis equals $90,000
+  definition section_1011.basis_source equals [S1012]
+  definition section_1011.net_adjustments_under_1016 equals $10,000
+  definition section_1011.s170_deduction equals true
+  definition section_1011.s170_sale_amount_realized equals $30,000
+  definition section_1011.s170_fair_market_value equals $90,000
+  assertion section_1011.adjusted_basis = $33,333.33
+```
